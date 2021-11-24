@@ -148,6 +148,10 @@ function JSONParse(string) {
           );
         }
 
+        if (currentToken.includes(".e")) {
+          throw new Error("Unexpected character ., expected digit" + here);
+        }
+
         // Numbers cannot end with .
         if (currentToken.endsWith(".")) {
           throw new Error("Unexpected character ." + here);

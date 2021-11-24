@@ -111,7 +111,7 @@ test("Variant 12: Error on trailing period in number", () => {
 });
 
 /**
- * == GITHUB ISSUE 6
+ * == GITHUB ISSUE 6 ==
  */
 test("Variant 13: Error on number starting with dot", () => {
   var inputString = ".0";
@@ -119,4 +119,15 @@ test("Variant 13: Error on number starting with dot", () => {
   expect(() => {
     JSONParse(inputString);
   }).toThrow("Unexpected character ., number cannot start with a dot");
+});
+
+/**
+ * == GITHUB ISSUE 7 ==
+ */
+test("Variant 14: Error on number with dot and e right next to each other", () => {
+  var inputString = "0.e0";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character ., expected digit");
 });
