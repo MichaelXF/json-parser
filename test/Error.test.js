@@ -299,3 +299,14 @@ test("Variant 31: Error on {:}", () => {
     JSONParse(inputString);
   }).toThrow("Unexpected character :, expected object key");
 });
+
+/**
+ * == GITHUB ISSUE 2 ==
+ */
+test("Variant 32: Error on [{},,[]]", () => {
+  var inputString = "[{},,[]]";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character comma, expected element value");
+});

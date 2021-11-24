@@ -393,6 +393,7 @@ function JSONParse(string) {
         setCursor([]);
         currentToken = "";
         readAny = true;
+        justFinishedCursor = false;
         continue;
       } else if (char === "{") {
         /**
@@ -443,6 +444,7 @@ function JSONParse(string) {
         setCursor({});
         currentToken = "";
         readAny = true;
+        justFinishedCursor = false;
         continue;
       } else if (char === ",") {
         if (!inArray && !inObject) {
@@ -484,6 +486,7 @@ function JSONParse(string) {
 
         popLiteral();
         readAny = true;
+        justFinishedCursor = false;
 
         // Read another key if inside curly braces
         settings = settingsStack[settingsStack.length - 1];
@@ -524,6 +527,7 @@ function JSONParse(string) {
           settings.hasValue = false;
           settings.invalidFlag = true;
           readAny = true;
+          justFinishedCursor = false;
           continue;
         } else {
           throw new Error(
