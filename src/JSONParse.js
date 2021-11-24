@@ -326,8 +326,11 @@ function JSONParse(string) {
           throw new Error('Unexpected character "' + here);
         }
 
-        if (settings && settings.hasValue) {
-          throw new Error('Unexpected character "' + here);
+        if (settings) {
+          if (settings.hasValue) {
+            throw new Error('Unexpected character "' + here);
+          }
+          settings.invalidFlag = false;
         }
       }
       inQuotes = !inQuotes;
@@ -381,6 +384,10 @@ function JSONParse(string) {
           );
         }
 
+        if (settings) {
+          settings.invalidFlag = false;
+        }
+
         paramStack.push("[");
         settingsStack.push({ hasValue: false }); // Reduced settings for arrays
         setCursor([]);
@@ -422,11 +429,16 @@ function JSONParse(string) {
           );
         }
 
+        if (settings) {
+          settings.invalidFlag = false;
+        }
+
         paramStack.push("{");
         settingsStack.push({
           inKey: true,
           inProperty: false,
           hasValue: false,
+          invalidFlag: false,
         });
         setCursor({});
         currentToken = "";
@@ -499,11 +511,18 @@ function JSONParse(string) {
         }
 
         if (settings && settings.inKey) {
+          if (!currentToken) {
+            throw new Error(
+              "Unexpected character :, expected object key" + here
+            );
+          }
+
           propertyNameStack.push(currentToken);
           currentToken = "";
           settings.inProperty = true;
           settings.inKey = false;
           settings.hasValue = false;
+          settings.invalidFlag = true;
           readAny = true;
           continue;
         } else {
@@ -516,8 +535,6 @@ function JSONParse(string) {
           );
         }
       }
-
-      justFinishedCursor = false;
 
       if (char === "]" || char === "}") {
         if (!paramStack.length) {
@@ -537,6 +554,23 @@ function JSONParse(string) {
         if (converted !== char) {
           throw new Error(
             "Unexpected character " + char + ", expected " + converted + here
+          );
+        }
+
+        /**
+         * validate object key and value
+         */
+
+        if (
+          inObject &&
+          settings &&
+          settings.invalidFlag &&
+          !currentToken &&
+          !justFinishedCursor
+        ) {
+          // Key but no value
+          throw new Error(
+            "Unexpected character }, expected property value" + here
           );
         }
 
@@ -577,6 +611,8 @@ function JSONParse(string) {
         }
 
         continue;
+      } else {
+        justFinishedCursor = false;
       }
     }
 
@@ -587,6 +623,10 @@ function JSONParse(string) {
       }
       if (settings && settings.hasValue) {
         throw new Error("Unexpected character " + char + here);
+      }
+
+      if (settings) {
+        settings.invalidFlag = false;
       }
     }
 

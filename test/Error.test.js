@@ -280,3 +280,22 @@ test("Variant 29: Error on empty string", () => {
     JSONParse(inputString);
   }).toThrow("Unexpected end of input, expected value");
 });
+
+/**
+ * == GITHUB ISSUE 1 ==
+ */
+test("Variant 30: Error on {0:}", () => {
+  var inputString = "{0:}";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character }, expected property value");
+});
+
+test("Variant 31: Error on {:}", () => {
+  var inputString = "{:}";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character :, expected object key");
+});
