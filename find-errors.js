@@ -1,31 +1,114 @@
 var JSONParse = require("./src/JSONParse");
 
 var count = 100000;
+var errors = 0;
 var now = Date.now();
 
+/**
+ * Generates a string that is likely to produce an error.
+ * @param {number} length
+ * @returns
+ */
 function getInputString(length) {
   var output = "";
-  var characterSet = ['"', "{", "}", "[", "]", ":", ",", "0", "1"];
+  var characterSet = ['"', "{", "}", "[", "]", ",", "0"];
   var stack = [];
+  var inQuotes = false;
+  var hasValue = false;
 
   for (var i = 0; i < length; i++) {
     var char = characterSet[Math.floor(characterSet.length * Math.random())];
 
-    if (char == "{" || char == "[") {
-      stack.push({ "{": "}", "[": "]" }[char]);
-    }
-
-    if (char == "}" || char == "]") {
-      var last = stack[stack.length - 1];
-
-      if (!last || char != last) {
+    if (!inQuotes) {
+      if (char !== '"') {
+        hasValue = false;
+      }
+      if (
+        char === '"' &&
+        (output[output.length - 1] === "0" ||
+          output[output.length - 1] === '"' ||
+          output[output.length - 1] === "]" ||
+          output[output.length - 1] === "}")
+      ) {
+        continue;
+      }
+      if (
+        char === "0" &&
+        (output[output.length - 1] === '"' ||
+          output[output.length - 1] === "]" ||
+          output[output.length - 1] === "}")
+      ) {
         continue;
       }
 
-      stack.pop();
+      var param = stack[stack.length - 1];
 
+      if (
+        char === "," &&
+        (output[output.length - 1] === "," ||
+          output[output.length - 1] === "{" ||
+          output[output.length - 1] === "[")
+      ) {
+        continue;
+      }
+
+      if (char === ":" && param !== "{") {
+        continue;
+      }
+      if (!param && char === ",") {
+        continue;
+      }
+
+      if (char == "{" || char == "[") {
+        if (
+          output[output.length - 1] === '"' ||
+          output[output.length - 1] === "}" ||
+          output[output.length - 1] === "{" ||
+          output[output.length - 1] === "]" ||
+          output[output.length - 1] === "0"
+        ) {
+          continue;
+        }
+        stack.push({ "{": "}", "[": "]" }[char]);
+      }
+
+      if (char == "}" || char == "]") {
+        if (
+          output[output.length - 1] === "," ||
+          output[output.length - 1] === ":"
+        ) {
+          continue;
+        }
+
+        var last = stack[stack.length - 1];
+
+        if (!last || char != last) {
+          continue;
+        }
+
+        stack.pop();
+
+        if (!stack.length) {
+          output += char;
+
+          break;
+        }
+      }
+    }
+
+    if (char === '"' || char === "0" || char === "1") {
       if (!stack.length) {
-        break;
+        continue;
+      }
+    }
+
+    if (char === '"') {
+      if (hasValue) {
+        continue;
+      }
+      inQuotes = !inQuotes;
+      if (!inQuotes) {
+        hasValue = true;
       }
     }
 
@@ -36,13 +119,20 @@ function getInputString(length) {
     output += char;
   }
 
-  output += stack.join("");
+  if (inQuotes) {
+    output += '"';
+  }
+
+  output += stack.reverse().join("");
 
   return output;
 }
 
 for (var i = 0; i < count; i++) {
-  var inputString = getInputString(Math.random() * 10 + 3);
+  var inputString = getInputString(Math.random() * 40 + 7);
+  if (!inputString) {
+    continue;
+  }
 
   var res1, res2;
   try {
@@ -58,7 +148,13 @@ for (var i = 0; i < count; i++) {
   }
 
   if (res1.status === res2.status) {
-    console.log(res1.status, inputString, res1.data?.message);
+    if (i % 100) {
+      console.log(res1.status, inputString, res1.data?.message);
+    }
+
+    if (res1.status === "error") {
+      errors++;
+    }
     continue;
   }
 
@@ -70,7 +166,7 @@ for (var i = 0; i < count; i++) {
 }
 
 var end = Date.now();
-var ms = end - ms;
+var ms = end - now;
 var avg = ms / count;
 
 console.log(`
@@ -78,4 +174,6 @@ console.log(`
   TOTAL EXECUTION TIME: ${ms}ms
   AVERAGE ITERATION TIME: ${avg}ms
   ITERATIONS: ${count}
+
+  SUCCESS RATE: ${Math.floor((1 - errors / count) * 100)}%
 `);

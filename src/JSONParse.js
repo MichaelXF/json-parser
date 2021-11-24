@@ -141,6 +141,11 @@ function JSONParse(string) {
             "Unexpected character +, not allowed in number" + here
           );
         }
+        if (currentToken.length > 1 && currentToken.startsWith("0")) {
+          throw new Error(
+            "Unexpected character 0, octal numbers are disallowed" + here
+          );
+        }
 
         parsedValue = parseFloat(currentToken);
 

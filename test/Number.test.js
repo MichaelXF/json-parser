@@ -71,3 +71,11 @@ test("Variant 8: Negative decimal as property value", () => {
 
   expect(output).toStrictEqual({ key: -1.5 });
 });
+
+test("Variant 9: Error on number starting with 0", () => {
+  var inputString = "01";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character 0, octal numbers are disallowed");
+});
