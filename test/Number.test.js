@@ -79,3 +79,22 @@ test("Variant 9: Error on number starting with 0", () => {
     JSONParse(inputString);
   }).toThrow("Unexpected character 0, octal numbers are disallowed");
 });
+
+/**
+ * == GITHUB ISSUE 4 ==
+ */
+test("Variant 10: Positive decimal less than 1", () => {
+  var inputString = '{ "key": 0.5 }';
+
+  var output = JSONParse(inputString);
+
+  expect(output).toStrictEqual({ key: 0.5 });
+});
+
+test("Variant 11: Error on negative number starting with 0", () => {
+  var inputString = "-01";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character 0, octal numbers are disallowed");
+});

@@ -141,7 +141,12 @@ function JSONParse(string) {
             "Unexpected character +, not allowed in number" + here
           );
         }
-        if (currentToken.length > 1 && currentToken.startsWith("0")) {
+
+        var integer = currentToken.split("e")[0].split(".")[0];
+        if (integer.startsWith("-")) {
+          integer = integer.slice(1);
+        }
+        if (integer.length > 1 && integer.startsWith("0")) {
           throw new Error(
             "Unexpected character 0, octal numbers are disallowed" + here
           );

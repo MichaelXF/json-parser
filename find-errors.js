@@ -11,7 +11,7 @@ var now = Date.now();
  */
 function getInputString(length) {
   var output = "";
-  var characterSet = ['"', "{", "}", "[", "]", ",", "0"];
+  var characterSet = ['"', "{", "}", "[", "]", ",", "0", ".", "e"];
   var stack = [];
   var inQuotes = false;
   var hasValue = false;
