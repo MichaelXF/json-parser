@@ -142,6 +142,11 @@ function JSONParse(string) {
           );
         }
 
+        // Numbers cannot end with .
+        if (currentToken.endsWith(".")) {
+          throw new Error("Unexpected character ." + here);
+        }
+
         var integer = currentToken.split("e")[0].split(".")[0];
         if (integer.startsWith("-")) {
           integer = integer.slice(1);

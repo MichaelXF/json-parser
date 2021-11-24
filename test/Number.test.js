@@ -98,3 +98,14 @@ test("Variant 11: Error on negative number starting with 0", () => {
     JSONParse(inputString);
   }).toThrow("Unexpected character 0, octal numbers are disallowed");
 });
+
+/**
+ * == GITHUB ISSUE 5 ==
+ */
+test("Variant 12: Error on trailing period in number", () => {
+  var inputString = "1.";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character .");
+});
