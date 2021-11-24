@@ -109,3 +109,14 @@ test("Variant 12: Error on trailing period in number", () => {
     JSONParse(inputString);
   }).toThrow("Unexpected character .");
 });
+
+/**
+ * == GITHUB ISSUE 6
+ */
+test("Variant 13: Error on number starting with dot", () => {
+  var inputString = ".0";
+
+  expect(() => {
+    JSONParse(inputString);
+  }).toThrow("Unexpected character ., number cannot start with a dot");
+});

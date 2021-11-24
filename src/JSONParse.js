@@ -142,6 +142,12 @@ function JSONParse(string) {
           );
         }
 
+        if (currentToken.startsWith(".")) {
+          throw new Error(
+            "Unexpected character ., number cannot start with a dot" + here
+          );
+        }
+
         // Numbers cannot end with .
         if (currentToken.endsWith(".")) {
           throw new Error("Unexpected character ." + here);
